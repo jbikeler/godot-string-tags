@@ -172,7 +172,7 @@ func _on_item_right_clicked(mouse_position: Vector2, mouse_button_index: int) ->
 	var tag: String = selected.get_metadata(0)
 	var popup := PopupMenu.new()
 	add_child(popup)
-	popup.add_item("Copy '%s'" % tag, 0)
+	popup.add_item("Copy exact '%s'" % tag, 0)
 	popup.add_separator()
 	popup.add_item("Rename '%s' only" % tag, 1)
 	popup.add_item("Rename '%s' and children" % tag, 2)
@@ -257,7 +257,8 @@ func _on_item_selected() -> void:
 	if not selected:
 		return
 	var tag: String = selected.get_metadata(0)
-	DisplayServer.clipboard_set(tag)
+	var formatted_tag = '"%s"' % tag
+	DisplayServer.clipboard_set(formatted_tag)
 	_set_feedback("Copied: %s" % tag, false)
 
 
