@@ -107,3 +107,20 @@ Most Gameplay Tag implementations use custom classes or objects to represent eac
 - Renaming requires a manual find and replace across scripts and scene files.
 - String comparison is slower than pointer comparison, though in practice this is negligible for typical tag counts
 - No autocomplete for tag values in the script editor unless you copy them from the panel
+
+If you are looking for an object based tag system, here are some that I've found (I can't vouch for them as I use my own string system so **USE AT YOUR OWN RISK**):
+
+- (GDTag)[https://github.com/DillaDJ/GDTag]
+- (Godot Gameplay Tags)[https://github.com/OctoD/godot-gameplay-tags]
+
+Full GAS-like system:
+
+- (Forge Godot)[https://github.com/gamesmiths-guild/forge-godot] *C# Only
+- (Godot Gameplay Systems)[https://github.com/OctoD/godot-gameplay-systems] *Rewrite in Progress
+
+## Thank You
+
+I am by no means an expert dev. There might much better ways to approach tags, but this system worked great for me in my projects and I hope it can help you to.
+
+**Disclaimer**
+I wrote some if this addon with Claude. I do my best to use AI sparingly and personally I like the challenge of solving problems with code, but sometimes I hit a roadblock and my skills don't cut it. I understand if this dissapoints you, but know I plan to use AI less and less as my skills grow OR we find a better way to make AI more sustainable and use ethical/transparent training practices :P
