@@ -2,28 +2,12 @@
 
 A lightweight hierarchical tag system for Godot 4, inspired by Unreal Engine's Gameplay Tag system. Tags are dot-notation strings that express parent-child relationships, such as `Character.Status.Burning`. The addon provides an editor panel for managing your tag database, an inspector widget for assigning tags to nodes, and a runtime API for querying them.
 
+[See why I chose strings vs objects](#why-strings)
+
 ## Installation
 
 1. Copy the `addons/godot_string_tags` folder into your project's `addons` folder.
 2. Open **Project > Project Settings > Plugins** and enable **Godot String Tags**.
-
-### Why Strings
-
-Most Gameplay Tag implementations use custom classes or objects to represent each tag, which is great! I chose a different route, to make Godot String Tags use plain strings. The goal is to keep the system as lightweight as possible. Strings require minimal memory overhead and no class instantiation, making the system fast to initialize and easy to serialize. (Also, strings just seem like such a Godot way of doing things :P)
-
-**Pros of a string-based system**
-
-- Low memory footprint. Strings < Objects (as far as memory goes)
-- Serializable. Tags are plain text in your scene and resource files
-- No dependency chain. Containers and queries work without any class instances in scope
-- Find and replace friendly. Renaming tags across a project is a standard text search operation (which is already pretty good in Godot)
-
-**Cons of a string-based system**
-
-- No compile-time safety. Typos in tag strings are silent failures at runtime
-- Renaming requires a manual find and replace across scripts and scene files.
-- String comparison is slower than pointer comparison, though in practice this is negligible for typical tag counts
-- No autocomplete for tag values in the script editor unless you copy them from the panel
 
 ## Concepts
 
@@ -105,3 +89,21 @@ Use the toolbar in the Gameplay Tags panel to create, switch between, and manage
 If you ever need to find tags (maybe after renaming them in your database), we can find them in scripts with the classic **Ctrl+Shift+F** Search in Files shortcut (since they are just strings). Godot's Search in Files does not search `.tscn` or `.tres` files by default, so if you have placed any tags in a GameplayTagContainer using the inspector we need to be able to find these as well. Luckyly we can search our scene files as well as our scripts. To enable this, go to **Project Settings > General > Editor > Script** and add `tscn` to the search file extensions. This allows you to find and replace tag strings across your entire project including scene files. Then, when we use Search in Files, be sure the .tscn filter is enabled.
 
 ![Panel Overview](.github/images/scene_search.png)
+
+## Why Strings
+
+Most Gameplay Tag implementations use custom classes or objects to represent each tag, which is great! I chose a different route, to make Godot String Tags use plain strings. The goal is to keep the system as lightweight as possible. Strings require minimal memory overhead and no class instantiation, making the system fast to initialize and easy to serialize. (Also, strings just seem like such a Godot way of doing things :P)
+
+**Pros of a string-based system**
+
+- Low memory footprint. Strings < Objects (as far as memory goes)
+- Serializable. Tags are plain text in your scene and resource files
+- No dependency chain. Containers and queries work without any class instances in scope
+- Find and replace friendly. Renaming tags across a project is a standard text search operation (which is already pretty good in Godot)
+
+**Cons of a string-based system**
+
+- No compile-time safety. Typos in tag strings are silent failures at runtime
+- Renaming requires a manual find and replace across scripts and scene files.
+- String comparison is slower than pointer comparison, though in practice this is negligible for typical tag counts
+- No autocomplete for tag values in the script editor unless you copy them from the panel
