@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dpese36dg8waj"]
 
 [ext_resource type="Script" uid="uid://cu7xw4611saxr" path="res://addons/godot_string_tags/editor/tag_editor_panel.gd" id="1_yi1s7"]
-[ext_resource type="Texture2D" uid="uid://yaqw1r131wda" path="res://addons/godot_string_tags/assets/GuiVisibilityVisible.svg" id="2_7qo4i"]
+[ext_resource type="Texture2D" uid="uid://btaois8q4wxgi" path="res://addons/godot_string_tags/assets/GuiVisibilityHidden.svg" id="2_bq83o"]
 
 [node name="TagEditorPanel" type="Control" unique_id=1118368617]
 custom_minimum_size = Vector2(0, 130)
@@ -53,6 +53,7 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 0, 1)
 
 [node name="Toolbar" type="HBoxContainer" parent="VBoxContainer/ActionBar" unique_id=749448911]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 4
 
@@ -82,4 +83,4 @@ text = "Repair"
 [node name="ToolbarToggle" type="Button" parent="VBoxContainer/ActionBar" unique_id=933078376]
 layout_mode = 2
 size_flags_horizontal = 4
-icon = ExtResource("2_7qo4i")
+icon = ExtResource("2_bq83o")
