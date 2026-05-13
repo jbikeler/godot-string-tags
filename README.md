@@ -110,13 +110,13 @@ Most Gameplay Tag implementations use custom classes or objects to represent eac
 
 If you are looking for an object based tag system, here are some that I've found (I can't vouch for them as I use my own string system so **USE AT YOUR OWN RISK**):
 
-- (GDTag)[https://github.com/DillaDJ/GDTag]
-- (Godot Gameplay Tags)[https://github.com/OctoD/godot-gameplay-tags]
+- [GDTag](https://github.com/DillaDJ/GDTag)
+- [Godot Gameplay Tags](https://github.com/OctoD/godot-gameplay-tags)
 
 Full GAS-like system:
 
-- (Forge Godot)[https://github.com/gamesmiths-guild/forge-godot] *C# Only
-- (Godot Gameplay Systems)[https://github.com/OctoD/godot-gameplay-systems] *Rewrite in Progress
+- [Forge Godot](https://github.com/gamesmiths-guild/forge-godot) *C# Only
+- [Godot Gameplay Systems](https://github.com/OctoD/godot-gameplay-systems) *Rewrite in Progress
 
 ## Thank You
 
