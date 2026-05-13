@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://dl7kcvb3lcopj"]
+
+[ext_resource type="Script" uid="uid://cis1hggnheda6" path="res://addons/godot_string_tags/editor/tag_select_popup.gd" id="1_wpleo"]
+
+[node name="TagSelectPopup" type="PopupPanel" unique_id=1059740583]
+oversampling_override = 1.0
+size = Vector2i(300, 400)
+visible = true
+script = ExtResource("1_wpleo")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=2140857201]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="VBoxContainer" unique_id=632018984]
+layout_mode = 2
+text = "Assign Tags"
+
+[node name="SearchInput" type="LineEdit" parent="VBoxContainer" unique_id=882948859]
+layout_mode = 2
+placeholder_text = "Search tags..."
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer" unique_id=1805105954]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TagList" type="VBoxContainer" parent="VBoxContainer/ScrollContainer" unique_id=1025165583]
+layout_mode = 2
+
+[node name="ConfirmBox" type="VBoxContainer" parent="VBoxContainer" unique_id=1564136595]
+visible = false
+layout_mode = 2
+
+[node name="ClipboardLabel" type="Label" parent="VBoxContainer/ConfirmBox" unique_id=722604806]
+layout_mode = 2
+text = "0 tags selected"
+
+[node name="ConfirmButton" type="Button" parent="VBoxContainer/ConfirmBox" unique_id=124261832]
+layout_mode = 2
+text = "Copy to Clipboard"
+
+[connection signal="text_changed" from="VBoxContainer/SearchInput" to="." method="_on_search_changed"]
+[connection signal="pressed" from="VBoxContainer/ConfirmBox/ConfirmButton" to="." method="_on_confirm_pressed"]

@@ -1,0 +1,85 @@
+[gd_scene format=3 uid="uid://dpese36dg8waj"]
+
+[ext_resource type="Script" uid="uid://cu7xw4611saxr" path="res://addons/godot_string_tags/editor/tag_editor_panel.gd" id="1_yi1s7"]
+[ext_resource type="Texture2D" uid="uid://yaqw1r131wda" path="res://addons/godot_string_tags/assets/GuiVisibilityVisible.svg" id="2_7qo4i"]
+
+[node name="TagEditorPanel" type="Control" unique_id=1118368617]
+custom_minimum_size = Vector2(0, 130)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_yi1s7")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=184505464]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SearchInput" type="LineEdit" parent="VBoxContainer" unique_id=1252697305]
+layout_mode = 2
+placeholder_text = "Search tags..."
+
+[node name="Tree" type="Tree" parent="VBoxContainer" unique_id=2141448482]
+layout_mode = 2
+size_flags_vertical = 3
+allow_rmb_select = true
+hide_root = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=1003402583]
+layout_mode = 2
+
+[node name="TagInput" type="LineEdit" parent="VBoxContainer/HBoxContainer" unique_id=573022008]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "e.g. Character.Status.Burning"
+
+[node name="AddButton" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=671164658]
+layout_mode = 2
+text = "Add Tag"
+
+[node name="ActionBar" type="HBoxContainer" parent="VBoxContainer" unique_id=734635320]
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+
+[node name="FeedbackLabel" type="Label" parent="VBoxContainer/ActionBar" unique_id=979352012]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+
+[node name="Toolbar" type="HBoxContainer" parent="VBoxContainer/ActionBar" unique_id=749448911]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="DBSelector" type="OptionButton" parent="VBoxContainer/ActionBar/Toolbar" unique_id=527274985]
+layout_mode = 2
+size_flags_horizontal = 3
+selected = 0
+item_count = 1
+popup/item_0/text = "gameplay_tag_db"
+popup/item_0/id = 0
+
+[node name="NewDBButton" type="Button" parent="VBoxContainer/ActionBar/Toolbar" unique_id=15659759]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Add"
+
+[node name="RemoveDBButton" type="Button" parent="VBoxContainer/ActionBar/Toolbar" unique_id=657501818]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Remove"
+
+[node name="RepairDBButton" type="Button" parent="VBoxContainer/ActionBar/Toolbar" unique_id=685930893]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Repair"
+
+[node name="ToolbarToggle" type="Button" parent="VBoxContainer/ActionBar" unique_id=933078376]
+layout_mode = 2
+size_flags_horizontal = 4
+icon = ExtResource("2_7qo4i")
