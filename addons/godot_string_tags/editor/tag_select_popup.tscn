@@ -22,7 +22,7 @@ theme_override_constants/separation = 4
 
 [node name="Title" type="Label" parent="VBoxContainer" unique_id=632018984]
 layout_mode = 2
-text = "Assign Tags"
+text = "Select Tags"
 
 [node name="SearchInput" type="LineEdit" parent="VBoxContainer" unique_id=882948859]
 layout_mode = 2

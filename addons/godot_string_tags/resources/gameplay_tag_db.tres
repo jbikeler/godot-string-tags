@@ -4,4 +4,3 @@
 
 [resource]
 script = ExtResource("1_uafsx")
-tags = Array[String](["Character", "Character.Ability", "Character.Ability.Jump", "Character.Ability.Shoot", "Enemy", "Enemy.Id", "Enemy.Id.Beetle", "Enemy.Status", "Enemy.Status.Poisoned"])
