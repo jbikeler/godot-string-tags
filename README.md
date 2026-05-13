@@ -120,7 +120,8 @@ Full GAS-like system:
 
 ## Thank You
 
-I am by no means an expert dev. There might much better ways to approach tags, but this system worked great for me in my projects and I hope it can help you to.
+I am by no means an expert dev. There might much better ways to approach tags, but this system worked great for me in my projects and I hope it can help you too.
 
-**Disclaimer**
-I wrote some if this addon with Claude. I do my best to use AI sparingly and personally I like the challenge of solving problems with code, but sometimes I hit a roadblock and my skills don't cut it. I understand if this dissapoints you, but know I plan to use AI less and less as my skills grow OR we find a better way to make AI more sustainable and use ethical/transparent training practices :P
+**--Disclaimer--**
+
+I wrote some if this addon with Claude. I do my best to use AI sparingly, and personally I like the challenge of solving problems with code, but sometimes I hit a roadblock and my skills don't cut it. I understand if this dissapoints you, but know I plan to use AI less and less as my skills grow OR we find a better way to make AI more sustainable and use ethical/transparent training practices :P
