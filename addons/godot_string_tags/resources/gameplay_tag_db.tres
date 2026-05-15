@@ -1,7 +1,0 @@
-[gd_resource type="Resource" script_class="GameplayTagDB" format=3 uid="uid://45jtm1db4oh0"]
-
-[ext_resource type="Script" uid="uid://c1he6sgn328od" path="res://addons/godot_string_tags/resources/gameplay_tag_db.gd" id="1_uafsx"]
-
-[resource]
-script = ExtResource("1_uafsx")
-tags = Array[String](["Character", "Character.Ability", "Character.Ability.Shoot"])

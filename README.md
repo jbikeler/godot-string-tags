@@ -31,15 +31,15 @@ Right-clicking any tag in the tree gives you options to copy, rename, or delete 
 
 ## Assigning Tags to Nodes
 
-Declare an exported property on any node(use setter if you want the tags to be unique):
+Declare an exported property on any node:
 
 ```gdscript
-@export var tags: GameplayTagContainer:
-	set(value): #for unique tags
-		tags = value.duplicate() if value else GameplayTagContainer.new()
+@export var tags: GameplayTagContainer
 ```
 
-Select the node in the editor and click **Edit Tags** in the Inspector to open the tag picker. Check the tags you want to assign to this node.
+Select the node in the editor and create a new GameplayTagContainer resource. Select the newly created resource in you should be able to click **Edit Tags** in the Inspector to open the tag picker. Check the tags you want to assign to this node.
+
+![Panel Overview](.github/images/tag_resource.png)
 
 ## Querying Tags at Runtime
 
@@ -129,10 +129,16 @@ Full GAS-like system:
 - [Forge Godot](https://github.com/gamesmiths-guild/forge-godot) *C# Only
 - [Godot Gameplay Systems](https://github.com/OctoD/godot-gameplay-systems) *Rewrite in Progress
 
+
+## Known issues
+
+Duplicated or child objects with tags in a GameplayTagContainer will technically reference the same tags since the containers are a single Resource.
+
+
 ## Thank You
 
 I am by no means an expert dev. There might much better ways to approach tags, but this system worked great for me in my projects and I hope it can help you too.
 
 **--Disclaimer--**
 
-I wrote some if this addon with Claude. I do my best to use AI sparingly, and personally I like the challenge of solving problems with code, but sometimes I hit a roadblock and my skills don't cut it. I understand if this dissapoints you, but know I plan to use AI less and less as my skills grow OR we find a better way to make AI more sustainable and use ethical/transparent training practices :P
+I wrote some if this addon with Claude. I do my best to use AI sparingly, and personally I like the challenge of solving problems with code, but sometimes I hit a roadblock and my skills don't cut it. I plan to use AI less and less as my skills grow OR we find a better way to make AI more sustainable and use ethical/transparent training practices :P
