@@ -10,17 +10,25 @@ var _registry: Node
 const GUI_VISIBILITY_HIDDEN = preload("uid://btaois8q4wxgi")
 const GUI_VISIBILITY_VISIBLE = preload("uid://yaqw1r131wda")
 
-@onready var _search_input: LineEdit = $VBoxContainer/SearchInput
-@onready var _tree: Tree = $VBoxContainer/Tree
-@onready var _tag_input: LineEdit = $VBoxContainer/HBoxContainer/TagInput
-@onready var _add_button: Button = $VBoxContainer/HBoxContainer/AddButton
-@onready var _feedback_label: Label = $VBoxContainer/ActionBar/FeedbackLabel
-@onready var _toolbar: HBoxContainer = $VBoxContainer/ActionBar/Toolbar
-@onready var _db_selector: OptionButton = $VBoxContainer/ActionBar/Toolbar/DBSelector
-@onready var _new_db_button: Button = $VBoxContainer/ActionBar/Toolbar/NewDBButton
-@onready var _remove_db_button: Button = $VBoxContainer/ActionBar/Toolbar/RemoveDBButton
-@onready var _repair_db_button: Button = $VBoxContainer/ActionBar/Toolbar/RepairDBButton
-@onready var _toolbar_toggle: Button = $VBoxContainer/ActionBar/ToolbarToggle
+# --- Core UI ----------
+@onready var _search_input: LineEdit = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/SearchInput
+@onready var _tree: Tree = $ScrollContainer/HSplitContainer/VBoxContainer/TagsPanel/Tree
+@onready var _tag_input: LineEdit = $ScrollContainer/HSplitContainer/VBoxContainer/TagsPanel/HBoxContainer/TagInput
+@onready var _add_button: Button = $ScrollContainer/HSplitContainer/VBoxContainer/TagsPanel/HBoxContainer/AddButton
+@onready var _feedback_label: Label = $ScrollContainer/HSplitContainer/VBoxContainer/FeedbackLabel
+@onready var _toolbar: HBoxContainer = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/Toolbar
+@onready var _db_selector: OptionButton = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/Toolbar/DBSelector
+@onready var _new_db_button: Button = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/Toolbar/NewDBButton
+@onready var _remove_db_button: Button = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/Toolbar/RemoveDBButton
+@onready var _repair_db_button: Button = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/Toolbar/RepairDBButton
+@onready var _toolbar_toggle: Button = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/ToolbarToggle
+# --- Search Ui ----------
+@onready var _reference_panel: MarginContainer = $ScrollContainer/HSplitContainer/PanelContainer/ReferencePanel
+@onready var tag_title: Label = $ScrollContainer/HSplitContainer/PanelContainer/ReferencePanel/VBoxContainer/TagTitle
+@onready var _clear_references_button: Button = $ScrollContainer/HSplitContainer/PanelContainer/ReferencePanel/VBoxContainer/HBoxContainer/ClearButton
+@onready var _reference_list: VBoxContainer = $ScrollContainer/HSplitContainer/PanelContainer/ReferencePanel/VBoxContainer/ScrollContainer/ReferenceList
+
+
 
 func _ready() -> void:
 	init_ui()
@@ -36,6 +44,11 @@ func init_ui() -> void:
 	_db_selector.item_selected.connect(_on_db_selected)
 	_repair_db_button.pressed.connect(_on_repair_db_pressed)
 	_toolbar_toggle.pressed.connect(_on_toolbar_toggle_pressed)
+	_clear_references_button.pressed.connect(func() -> void: # Clear Search
+		tag_title.text = "(Right click 'Find in Project')"
+		for child in _reference_list.get_children():
+			child.queue_free()
+	)
 	_tree.hide_root = true
 	_tree.allow_rmb_select = true
 
@@ -54,10 +67,9 @@ func _initial_load() -> void:
 
 	var hide_toolbar: bool = _registry.get_hide_toolbar()
 	_toolbar.visible = not hide_toolbar
+	_toolbar_toggle.icon = GUI_VISIBILITY_HIDDEN if hide_toolbar else GUI_VISIBILITY_VISIBLE
 
 	_refresh_db_selector()
-
-
 
 
 # -------------------------------------------------------
@@ -183,6 +195,8 @@ func _on_item_mouse_selected(mouse_position: Vector2, mouse_button_index: int) -
 		if _registry.get_tag_children(tag).is_empty():
 			popup.add_item("Delete '%s'" % tag, 3)
 		popup.add_item("Delete '%s' and children" % tag, 4)
+		popup.add_separator()
+		popup.add_item("Find in Project", 5)
 		popup.id_pressed.connect(func(id: int) -> void:
 			_on_context_menu_selected(id, tag)
 			popup.queue_free()
@@ -212,6 +226,8 @@ func _on_context_menu_selected(id: int, tag: String) -> void:
 				_rebuild_tree(_search_input.text)
 			else:
 				_set_feedback("Could not remove '%s'." % tag, true)
+		5:
+			_find_tag_in_project(tag)
 
 
 func _show_rename_dialog(tag: String, rename_children: bool) -> void:
@@ -255,6 +271,9 @@ func _show_rename_dialog(tag: String, rename_children: bool) -> void:
 	dialog.popup_centered()
 
 
+# -------------------------------------------------------
+# Database Management
+# -------------------------------------------------------
 
 func _refresh_db_selector() -> void:
 	_fetch_registry()
@@ -356,6 +375,78 @@ func _on_toolbar_toggle_pressed() -> void:
 		_toolbar_toggle.icon = GUI_VISIBILITY_HIDDEN
 	else:
 		_toolbar_toggle.icon = GUI_VISIBILITY_VISIBLE
+
+
+
+# -------------------------------------------------------
+# Search
+# -------------------------------------------------------
+
+func _find_tag_in_project(tag: String) -> void:
+	for child in _reference_list.get_children():
+		child.queue_free()
+	tag_title.text = tag
+	var results := _scan_for_tag(tag)
+	if results.is_empty():
+		_set_feedback("No references found for '%s'." % tag, false)
+		return
+	for result in results:
+		var path: String = result.path
+		var line: int = result.line
+		var btn := Button.new()
+		btn.text = "%s  :%d" % [path.get_file(), line] if line > 0 else path.get_file()
+		btn.tooltip_text = path
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn.pressed.connect(func() -> void:
+			if path.ends_with(".gd"):
+				var script := load(path)
+				if script:
+					EditorInterface.edit_script(script, line)
+			else:
+				EditorInterface.open_scene_from_path(path)
+		)
+		_reference_list.add_child(btn)
+	_set_feedback("Found %d reference(s) for '%s'." % [results.size(), tag], false)
+
+
+func _scan_for_tag(tag: String) -> Array:
+	var results := []
+	_scan_directory("res://", tag, results)
+	return results
+
+
+func _scan_directory(path: String, tag: String, results: Array) -> void:
+	var dir := DirAccess.open(path)
+	if not dir:
+		return
+
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+	while file_name != "":
+		var full_path := path + "/" + file_name
+		# Skip hidden folders and the addons folder to avoid noise
+		if dir.current_is_dir():
+			if not file_name.begins_with(".") and file_name != "addons":
+				_scan_directory(full_path, tag, results)
+		elif file_name.ends_with(".gd") or file_name.ends_with(".tscn") or file_name.ends_with(".tres"):
+			_check_file(full_path, tag, results)
+		file_name = dir.get_next()
+	dir.list_dir_end()
+
+
+func _check_file(path: String, tag: String, results: Array) -> void:
+	var content := FileAccess.get_file_as_string(path)
+	if not content.contains(tag):
+		return
+	# Find line numbers for .gd files, just record the path for scene files
+	if path.ends_with(".gd"):
+		var lines := content.split("\n")
+		for i in range(lines.size()):
+			if lines[i].contains(tag):
+				results.append({path = path, line = i + 1})
+	else:
+		results.append({path = path, line = 0})
+
 
 # -------------------------------------------------------
 # Feedback

@@ -88,9 +88,17 @@ Use the toolbar in the Gameplay Tags panel to create, switch between, and manage
 
 ## Finding Tags in Your Project
 
-If you ever need to find tags (maybe after renaming them in your database), we can find them in scripts with the classic **Ctrl+Shift+F** Search in Files shortcut (since they are just strings). Godot's Search in Files does not search `.tscn` or `.tres` files by default, so if you have placed any tags in a GameplayTagContainer using the inspector we need to be able to find these as well. Luckyly we can search our scene files as well as our scripts. To enable this, go to **Project Settings > General > Editor > Script** and add `tscn` to the search file extensions. This allows you to find and replace tag strings across your entire project including scene files. Then, when we use Search in Files, be sure the .tscn filter is enabled.
+In version 0.2, I added a search feature that automatically searches for tags in your project files (.gd, .tscn, and .tres). This feature is in the right click context menu as 'Find in Project'. Results will be displayed in the panel on the right. You can click on each result and it will open the related file. 
+
+![Panel Overview](.github/images/search_feature.png)
+
+One caveat, this search only works from the Gameplay Tags Panel. It works best to search for these tags **before** renaming or deleting tags.
+
+If you ever need to find tags after renaming them in your database, I would use the classic **Ctrl+Shift+F** Search in Files shortcut (since they are just strings). Godot's Search in Files does not search `.tscn` or `.tres` files by default, so if you have placed any tags in a GameplayTagContainer using the inspector we need to be able to find these as well. Luckyly we can search our scene files as well as our scripts, it just needs to be ebabled in your settings. Go to **Project Settings > General > Editor > Script** and add `tscn` to the search file extensions. This allows you to find and replace tag strings across your entire project including scene files. When we use Search in Files, be sure the .tscn filter is enabled.
 
 ![Panel Overview](.github/images/scene_search.png)
+
+![Panel Overview](.github/images/find_in_files.png)
 
 ## Why Strings
 

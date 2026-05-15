@@ -4,3 +4,4 @@
 
 [resource]
 script = ExtResource("1_uafsx")
+tags = Array[String](["Character", "Character.Ability", "Character.Ability.Shoot"])
