@@ -30,8 +30,7 @@ func init_ui() -> void:
 	_search_input.text_changed.connect(_on_search_changed)
 	_tag_input.text_submitted.connect(_on_tag_submitted)
 	_add_button.pressed.connect(_on_add_pressed)
-	_tree.item_selected.connect(_on_item_selected)
-	_tree.item_mouse_selected.connect(_on_item_right_clicked)
+	_tree.item_mouse_selected.connect(_on_item_mouse_selected)
 	_new_db_button.pressed.connect(_on_new_db_pressed)
 	_remove_db_button.pressed.connect(_on_remove_db_pressed)
 	_db_selector.item_selected.connect(_on_db_selected)
@@ -163,28 +162,32 @@ func _on_search_changed(text: String) -> void:
 	_rebuild_tree(text)
 
 
-func _on_item_right_clicked(mouse_position: Vector2, mouse_button_index: int) -> void:
-	if mouse_button_index != MOUSE_BUTTON_RIGHT:
-		return
+func _on_item_mouse_selected(mouse_position: Vector2, mouse_button_index: int) -> void:
 	var selected := _tree.get_selected()
 	if not selected:
 		return
 	var tag: String = selected.get_metadata(0)
-	var popup := PopupMenu.new()
-	add_child(popup)
-	popup.add_item("Copy exact '%s'" % tag, 0)
-	popup.add_separator()
-	popup.add_item("Rename '%s' only" % tag, 1)
-	popup.add_item("Rename '%s' and children" % tag, 2)
-	popup.add_separator()
-	if _registry.get_tag_children(tag).is_empty(): #Only show delete only option if there are no children
-		popup.add_item("Delete '%s' only" % tag, 3)
-	popup.add_item("Delete '%s' and children" % tag, 4)
-	popup.id_pressed.connect(func(id: int) -> void:
-		_on_context_menu_selected(id, tag)
-		popup.queue_free()
-	)
-	popup.popup_on_parent(Rect2(get_global_mouse_position(), Vector2.ZERO))
+
+	if mouse_button_index == MOUSE_BUTTON_LEFT:
+		DisplayServer.clipboard_set('"%s"' % tag)
+		_set_feedback("Copied: %s" % tag, false)
+
+	elif mouse_button_index == MOUSE_BUTTON_RIGHT:
+		var popup := PopupMenu.new()
+		add_child(popup)
+		popup.add_item("Copy '%s'" % tag, 0)
+		popup.add_separator()
+		popup.add_item("Rename '%s' only" % tag, 1)
+		popup.add_item("Rename '%s' and children" % tag, 2)
+		popup.add_separator()
+		if _registry.get_tag_children(tag).is_empty():
+			popup.add_item("Delete '%s'" % tag, 3)
+		popup.add_item("Delete '%s' and children" % tag, 4)
+		popup.id_pressed.connect(func(id: int) -> void:
+			_on_context_menu_selected(id, tag)
+			popup.queue_free()
+		)
+		popup.popup_on_parent(Rect2(get_global_mouse_position(), Vector2.ZERO))
 
 
 func _on_context_menu_selected(id: int, tag: String) -> void:
@@ -251,15 +254,6 @@ func _show_rename_dialog(tag: String, rename_children: bool) -> void:
 	)
 	dialog.popup_centered()
 
-
-func _on_item_selected() -> void:
-	var selected := _tree.get_selected()
-	if not selected:
-		return
-	var tag: String = selected.get_metadata(0)
-	var formatted_tag = '"%s"' % tag
-	DisplayServer.clipboard_set(formatted_tag)
-	_set_feedback("Copied: %s" % tag, false)
 
 
 func _refresh_db_selector() -> void:

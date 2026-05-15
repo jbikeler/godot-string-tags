@@ -2,7 +2,7 @@
 
 A lightweight hierarchical tag system for Godot 4, inspired by Unreal Engine's Gameplay Tag system. Tags are dot-notation strings that express parent-child relationships, such as `Character.Status.Burning`. The addon provides an editor panel for managing your tag database, an inspector widget for assigning tags to nodes, and a runtime API for querying them.
 
-[See why I chose strings vs objects](#why-strings)
+See [why I chose strings vs objects](#why-strings). This addon attempts to address most of the cons when using strings as tags or identifiers.
 
 ## Installation
 
@@ -25,16 +25,18 @@ Open the **Gameplay Tags** panel in the bottom dock of the Godot editor. Type a 
 
 ![Panel Overview](.github/images/panel_overview.png)
 
-Right-clicking any tag in the tree gives you options to copy, rename, or delete it.
+Single-clicking a tag copies its full path to the clipboard as a string so you can paste it directly into your scripts.
 
-Single-clicking a tag copies its full path to the clipboard so you can paste it directly into your scripts.
+Right-clicking any tag in the tree gives you options to copy, rename, or delete it. Copying from this menu will copy the direct path (without the quotation marks).
 
 ## Assigning Tags to Nodes
 
-Declare an exported property on any node:
+Declare an exported property on any node(use setter if you want the tags to be unique):
 
 ```gdscript
-@export var tags: GameplayTagContainer
+@export var tags: GameplayTagContainer:
+	set(value): #for unique tags
+		tags = value.duplicate() if value else GameplayTagContainer.new()
 ```
 
 Select the node in the editor and click **Edit Tags** in the Inspector to open the tag picker. Check the tags you want to assign to this node.
@@ -100,6 +102,7 @@ Most Gameplay Tag implementations use custom classes or objects to represent eac
 - Serializable. Tags are plain text in your scene and resource files
 - No dependency chain. Containers and queries work without any class instances in scope
 - Find and replace friendly. Renaming tags across a project is a standard text search operation (which is already pretty good in Godot)
+- And finally, GDScript. This is not necessarily a benefit of the string system, but the addon itself. Since it's all written in GDScript, it can work in any version of Godot.
 
 **Cons of a string-based system**
 
