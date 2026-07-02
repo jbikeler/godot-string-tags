@@ -110,7 +110,7 @@ Most Gameplay Tag implementations use custom classes or objects to represent eac
 - Serializable. Tags are plain text in your scene and resource files
 - No dependency chain. Containers and queries work without any class instances in scope
 - Find and replace friendly. Renaming tags across a project is a standard text search operation (which is already pretty good in Godot)
-- And finally, GDScript. This is not necessarily a benefit of the string system, but the addon itself. Since it's all written in GDScript, it can work in any version of Godot.
+- And finally, GDScript. This is not necessarily a benefit of the string system, but the addon itself. Since it's all written in GDScript, it can work in any version of Godot (e.g. Windows, Andriod, Xogot, etc.).
 
 **Cons of a string-based system**
 
@@ -132,7 +132,7 @@ Full GAS-like system:
 
 ## Known issues
 
-Duplicated or child objects with tags in a GameplayTagContainer will technically reference the same tags since the containers are a single Resource.
+Duplicated or child objects with tags in a GameplayTagContainer will technically reference the same tags since the containers are a single Resource so users will have to remember to make them unique before editing the tags.
 
 
 ## Thank You
