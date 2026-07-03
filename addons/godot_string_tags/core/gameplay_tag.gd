@@ -17,5 +17,5 @@ func matches_exact(other: String) -> bool:
 
 
 ## Returns a readable string of this tag.
-func gt_to_string() -> String:
+func tag_to_string() -> String:
 	return "[GameplayTag: %s]" % tag

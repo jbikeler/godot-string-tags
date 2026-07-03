@@ -1,8 +1,8 @@
 @tool
 extends Node
 
-const CONFIG_PATH := "res://addons/godot_string_tags/resources/gameplay_tags.cfg"
-const DEFAULT_DB_PATH := "res://addons/godot_string_tags/resources/gameplay_tag_db.tres"
+const CONFIG_PATH := "res://addons/godot_string_tags/databases/gameplay_tags.cfg"
+const DEFAULT_DB_PATH := "res://addons/godot_string_tags/databases/gameplay_tag_db.tres"
 
 var _db: GameplayTagDB
 var _active_path: String = ""
@@ -158,7 +158,7 @@ func forget_database(path: String) -> void:
 ## and adds them to the known list if not already present.
 ## Also removes any known paths that no longer exist on disk.
 func repair_databases() -> int:
-	var resources_dir := "res://addons/godot_string_tags/resources/"
+	var resources_dir := "res://addons/godot_string_tags/databases/"
 	var dir := DirAccess.open(resources_dir)
 	if not dir:
 		push_error("GameplayTagRegistry: Could not open resources directory.")

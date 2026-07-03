@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dpese36dg8waj"]
 
 [ext_resource type="Script" uid="uid://cu7xw4611saxr" path="res://addons/godot_string_tags/editor/tag_editor_panel.gd" id="1_yi1s7"]
-[ext_resource type="Texture2D" uid="uid://btaois8q4wxgi" path="res://addons/godot_string_tags/assets/GuiVisibilityHidden.svg" id="2_bq83o"]
+[ext_resource type="Texture2D" uid="uid://yaqw1r131wda" path="res://addons/godot_string_tags/assets/GuiVisibilityVisible.svg" id="2_78gq3"]
 [ext_resource type="Texture2D" uid="uid://co1tg5qmlgbkk" path="res://addons/godot_string_tags/assets/Clear.svg" id="3_78gq3"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_78gq3"]
@@ -50,7 +50,6 @@ size_flags_horizontal = 3
 placeholder_text = "Search tags..."
 
 [node name="Toolbar" type="HBoxContainer" parent="ScrollContainer/HSplitContainer/VBoxContainer/ActionBar" unique_id=749448911]
-visible = false
 layout_mode = 2
 theme_override_constants/separation = 4
 
@@ -80,7 +79,7 @@ text = "Repair"
 [node name="ToolbarToggle" type="Button" parent="ScrollContainer/HSplitContainer/VBoxContainer/ActionBar" unique_id=933078376]
 layout_mode = 2
 size_flags_horizontal = 4
-icon = ExtResource("2_bq83o")
+icon = ExtResource("2_78gq3")
 
 [node name="TagsPanel" type="VBoxContainer" parent="ScrollContainer/HSplitContainer/VBoxContainer" unique_id=1732708270]
 custom_minimum_size = Vector2(0, 140)

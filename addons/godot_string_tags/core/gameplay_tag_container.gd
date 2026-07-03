@@ -50,7 +50,7 @@ func clear_tags() -> void:
 # Querying
 # -------------------------------------------------------
 
-# --- Query with Strings ----------
+# --- Query with Strings -------------------------
 ## Exact match only — tag string must match precisely.
 func has_exact(tag: String) -> bool:
 	return tag in tags
@@ -64,6 +64,14 @@ func has_tag(tag: String) -> bool:
 		if t == tag or t.begins_with(tag + "."):
 			return true
 	return false
+
+
+func has_gameplay_tag(tag: GameplayTag) -> bool:
+	return has_tag(tag.tag)
+
+
+func has_exact_gameplay_tag(tag: GameplayTag) -> bool:
+	return has_exact(tag.tag)
 
 
 ## Returns true if this container has every tag in listed tags (hierarchical matching).
@@ -95,6 +103,38 @@ func has_none(other_tags: Array[String]) -> bool:
 	return not has_any(other_tags)
 
 
+
+# --- Query with gameplay tags ---------------------
+## Returns true if this container has every tag in listed GameplayTag resources (hierarchical matching).
+func has_all_gameplay_tags(other_tags: Array[GameplayTag]) -> bool:
+	for tag in other_tags:
+		if not has_tag(tag.tag):
+			return false
+	return true
+
+
+## Exact matches only — container must have all GameplayTag resources matching precisely.
+func has_all_exact_gameplay_tags(other_tags: Array[GameplayTag]) -> bool:
+	for tag in other_tags:
+		if not has_exact(tag.tag):
+			return false
+	return true
+
+
+## Returns true if this container has at least one tag from listed GameplayTag resources (hierarchical matching).
+func has_any_gameplay_tags(other_tags: Array[GameplayTag]) -> bool:
+	for tag in other_tags:
+		if has_tag(tag.tag):
+			return true
+	return false
+
+
+## Returns true if this container has NO tags in common with listed GameplayTag resources (hierarchical matching).
+func has_none_gameplay_tags(other_tags: Array[GameplayTag]) -> bool:
+	return not has_any_gameplay_tags(other_tags)
+
+
+
 #  --- Query with Another Container ----------
 ## Returns true if this container has every tag in 'other' (hierarchical matching).
 func has_all_from_container(other: GameplayTagContainer) -> bool:
@@ -120,7 +160,7 @@ func has_none_from_container(other: GameplayTagContainer) -> bool:
 ## Returns a new container with only the tags that match the given parent.
 ## e.g. filter("Character.Status") on ["Character.Status.Burning", "Ability.Fire"]
 ## returns a container with just ["Character.Status.Burning"]
-func gt_filter(parent_tag: String) -> GameplayTagContainer:
+func tag_filter(parent_tag: String) -> GameplayTagContainer:
 	var result := GameplayTagContainer.new()
 	for t in tags:
 		if t == parent_tag or t.begins_with(parent_tag + "."):
@@ -154,7 +194,7 @@ func append_tags(other: GameplayTagContainer) -> void:
 
 
 ## Returns a new container that is the union of this and 'other'.
-func gt_merged_with(other: GameplayTagContainer) -> GameplayTagContainer:
+func tag_merged_with(other: GameplayTagContainer) -> GameplayTagContainer:
 	var result := GameplayTagContainer.new()
 	result.tags = tags.duplicate()
 	result.append_tags(other)

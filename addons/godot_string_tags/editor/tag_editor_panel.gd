@@ -9,6 +9,7 @@ var _registry: Node
 
 const GUI_VISIBILITY_HIDDEN = preload("uid://btaois8q4wxgi")
 const GUI_VISIBILITY_VISIBLE = preload("uid://yaqw1r131wda")
+const DELETE_DIALOG_SCENE := preload("uid://bxmpi73atf778")
 
 # --- Core UI ----------
 @onready var _search_input: LineEdit = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/SearchInput
@@ -215,19 +216,38 @@ func _on_context_menu_selected(id: int, tag: String) -> void:
 		2:
 			_show_rename_dialog(tag, true)
 		3:
-			if _registry.unregister_tag(tag, false):
-				_set_feedback("Removed: %s" % tag, false)
-				_rebuild_tree(_search_input.text)
-			else:
-				_set_feedback("Cannot delete '%s' — it still has children." % tag, true)
+			_confirm_delete(tag, false)
 		4:
-			if _registry.unregister_tag(tag, true):
-				_set_feedback("Removed '%s' and children." % tag, false)
-				_rebuild_tree(_search_input.text)
-			else:
-				_set_feedback("Could not remove '%s'." % tag, true)
+			_confirm_delete(tag, true)
 		5:
 			_find_tag_in_project(tag)
+
+
+
+func _confirm_delete(tag: String, remove_children: bool) -> void:
+	var references := _scan_for_tag(tag)
+
+	var dialog := DELETE_DIALOG_SCENE.instantiate()
+	add_child(dialog)
+
+	var message: String
+	if references.is_empty():
+		message = "Delete '%s'?" % tag if not remove_children else "Delete '%s' and all children?" % tag
+	else:
+		message = "'%s' is referenced in %d file(s).\nReview before deleting." % [tag, references.size()]
+
+	dialog.setup(message, not references.is_empty())
+
+	dialog.search_requested.connect(func() -> void:
+		_find_tag_in_project(tag)
+	)
+	dialog.delete_confirmed.connect(func() -> void:
+		if _registry.unregister_tag(tag, remove_children):
+			_set_feedback("Removed: %s" % tag, false)
+			_rebuild_tree(_search_input.text)
+	)
+
+	dialog.popup_centered()
 
 
 func _show_rename_dialog(tag: String, rename_children: bool) -> void:
