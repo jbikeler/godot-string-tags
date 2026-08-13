@@ -1,0 +1,7 @@
+v0.5
+- Added: QoL -> Tree remembers which tags are expanded and collapsed when adding new tags
+- Added: QoL -> Focus is returned to the tag input bar after adding a new tag 
+- Changed: Default behavior -> Left clicking a tag now Copies it without quotation marks
+- Changed: Right click menu now has "Copy String" which adds quotation marks to the tag
+- Added: A toggle search button to hide and show search results
+- Improved the visual design and behavior of the search panel

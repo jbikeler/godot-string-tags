@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="GameplayTagDB" format=3 uid="uid://csgo7wu23aga2"]
+
+[ext_resource type="Script" uid="uid://c1he6sgn328od" path="res://addons/godot_string_tags/resources/gameplay_tag_db.gd" id="1_8ha5e"]
+
+[resource]
+script = ExtResource("1_8ha5e")
+tags = Array[String](["Item", "Item.Alchemy", "Item.Alchemy.Herbs", "Item.Supplies", "Item.Supplies.Wood", "New", "New.Test", "New.Test.One", "Player", "Player.Ability", "Player.Ability.Jump", "Player.Ability.Slide", "Player.Abiliy", "Player.Abiliy.Jump"])

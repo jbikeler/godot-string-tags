@@ -6,28 +6,34 @@ extends Control
 # It may not be available immediately on first _ready if the plugin
 # is still initializing, so we check defensively before each use.
 var _registry: Node
+var _saved_split_offset := 0
 
 const GUI_VISIBILITY_HIDDEN = preload("uid://btaois8q4wxgi")
 const GUI_VISIBILITY_VISIBLE = preload("uid://yaqw1r131wda")
 const DELETE_DIALOG_SCENE := preload("uid://bxmpi73atf778")
+const GUI_SEARCH_VISIBLE = preload("uid://ok1dohqrq0rr")
+const GUI_SEARCH_HIDDEN = preload("uid://b53dxb1b0fboa")
 
 # --- Core UI ----------
-@onready var _search_input: LineEdit = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/SearchInput
-@onready var _tree: Tree = $ScrollContainer/HSplitContainer/VBoxContainer/TagsPanel/Tree
-@onready var _tag_input: LineEdit = $ScrollContainer/HSplitContainer/VBoxContainer/TagsPanel/HBoxContainer/TagInput
-@onready var _add_button: Button = $ScrollContainer/HSplitContainer/VBoxContainer/TagsPanel/HBoxContainer/AddButton
-@onready var _feedback_label: Label = $ScrollContainer/HSplitContainer/VBoxContainer/FeedbackLabel
-@onready var _toolbar: HBoxContainer = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/Toolbar
-@onready var _db_selector: OptionButton = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/Toolbar/DBSelector
-@onready var _new_db_button: Button = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/Toolbar/NewDBButton
-@onready var _remove_db_button: Button = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/Toolbar/RemoveDBButton
-@onready var _repair_db_button: Button = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/Toolbar/RepairDBButton
-@onready var _toolbar_toggle: Button = $ScrollContainer/HSplitContainer/VBoxContainer/ActionBar/ToolbarToggle
+@onready var _search_input: LineEdit = $ScrollContainer/HBoxContainer/EditorContainer/ActionBar/SearchInput
+@onready var _tree: Tree = $ScrollContainer/HBoxContainer/EditorContainer/TagsPanel/Tree
+@onready var _tag_input: LineEdit = $ScrollContainer/HBoxContainer/EditorContainer/TagsPanel/HBoxContainer/TagInput
+@onready var _add_button: Button = $ScrollContainer/HBoxContainer/EditorContainer/TagsPanel/HBoxContainer/AddButton
+@onready var _feedback_label: Label = $ScrollContainer/HBoxContainer/EditorContainer/FeedbackLabel
+@onready var _toolbar: HBoxContainer = $ScrollContainer/HBoxContainer/EditorContainer/ActionBar/Toolbar
+@onready var _db_selector: OptionButton = $ScrollContainer/HBoxContainer/EditorContainer/ActionBar/Toolbar/DBSelector
+@onready var _new_db_button: Button = $ScrollContainer/HBoxContainer/EditorContainer/ActionBar/Toolbar/NewDBButton
+@onready var _remove_db_button: Button = $ScrollContainer/HBoxContainer/EditorContainer/ActionBar/Toolbar/RemoveDBButton
+@onready var _repair_db_button: Button = $ScrollContainer/HBoxContainer/EditorContainer/ActionBar/Toolbar/RepairDBButton
+@onready var _toolbar_toggle: Button = $ScrollContainer/HBoxContainer/EditorContainer/ActionBar/ToolbarToggle
 # --- Search Ui ----------
-@onready var _reference_panel: MarginContainer = $ScrollContainer/HSplitContainer/PanelContainer/ReferencePanel
-@onready var tag_title: Label = $ScrollContainer/HSplitContainer/PanelContainer/ReferencePanel/VBoxContainer/TagTitle
-@onready var _clear_references_button: Button = $ScrollContainer/HSplitContainer/PanelContainer/ReferencePanel/VBoxContainer/HBoxContainer/ClearButton
-@onready var _reference_list: VBoxContainer = $ScrollContainer/HSplitContainer/PanelContainer/ReferencePanel/VBoxContainer/ScrollContainer/ReferenceList
+@onready var search_container: PanelContainer = $ScrollContainer/HBoxContainer/SearchContainer
+@onready var toggle_search_button: Button = $ScrollContainer/HBoxContainer/ToggleSearchButton
+@onready var toggle_search_texture: TextureRect = $ScrollContainer/HBoxContainer/ToggleSearchButton/ToggleSearchTexture
+@onready var _reference_panel: MarginContainer = $ScrollContainer/HBoxContainer/SearchContainer/ReferencePanel
+@onready var tag_title: Label = $ScrollContainer/HBoxContainer/SearchContainer/ReferencePanel/VBoxContainer/TagTitle
+@onready var _clear_references_button: Button = $ScrollContainer/HBoxContainer/SearchContainer/ReferencePanel/VBoxContainer/ClearButton
+@onready var _reference_list: VBoxContainer = $ScrollContainer/HBoxContainer/SearchContainer/ReferencePanel/VBoxContainer/ScrollContainer/ReferenceList
 
 
 
@@ -45,13 +51,15 @@ func init_ui() -> void:
 	_db_selector.item_selected.connect(_on_db_selected)
 	_repair_db_button.pressed.connect(_on_repair_db_pressed)
 	_toolbar_toggle.pressed.connect(_on_toolbar_toggle_pressed)
-	_clear_references_button.pressed.connect(func() -> void: # Clear Search
-		tag_title.text = "(Right click 'Find in Project')"
+	_clear_references_button.pressed.connect(func() -> void:
+		tag_title.text = "(Right Click 'Find in Project')"
 		for child in _reference_list.get_children():
 			child.queue_free()
 	)
 	_tree.hide_root = true
 	_tree.allow_rmb_select = true
+	toggle_search_button.pressed.connect(_on_toggle_search_pressed)
+	toggle_search_texture.texture = GUI_SEARCH_VISIBLE if search_container.visible else GUI_SEARCH_HIDDEN
 
 	# Defer so the autoload is guaranteed to be ready before we query it
 	call_deferred("_initial_load")
@@ -93,18 +101,21 @@ func _fetch_registry() -> void:
 
 func _rebuild_tree(filter_text: String = "") -> void:
 	_fetch_registry()
+
+	# Store expanded state before clearing
+	var expanded_tags: Array[String] = []
+	var root_item := _tree.get_root()
+	if root_item:
+		_collect_expanded(root_item, expanded_tags)
+
 	_tree.clear()
 
 	if not _registry:
 		return
 
-	# Invisible root required by Godot's Tree control
 	var root := _tree.create_item()
+	var all_tags: Array[String] = _registry.get_all_tags()
 
-	var all_tags : Array[String]= _registry.get_all_tags()
-
-	# If searching, flatten to a simple list of matches rather than
-	# showing broken partial hierarchy
 	if not filter_text.is_empty():
 		for tag in all_tags:
 			if filter_text.to_lower() in tag.to_lower():
@@ -113,8 +124,6 @@ func _rebuild_tree(filter_text: String = "") -> void:
 				item.set_metadata(0, tag)
 		return
 
-	# Normal mode — build the full hierarchy.
-	# We keep a dict of tag -> TreeItem so we can parent children correctly.
 	var item_map: Dictionary = {}
 
 	for tag in all_tags:
@@ -128,7 +137,6 @@ func _rebuild_tree(filter_text: String = "") -> void:
 			if current_path in item_map:
 				continue
 
-			# Determine parent TreeItem
 			var parent_item: TreeItem
 			if i == 0:
 				parent_item = root
@@ -137,10 +145,20 @@ func _rebuild_tree(filter_text: String = "") -> void:
 				parent_item = item_map.get(parent_path, root)
 
 			var item := _tree.create_item(parent_item)
-			item.set_text(0, part)			# Show only the leaf name, not the full path
-			item.set_metadata(0, current_path)	# Store full path for operations
+			item.set_text(0, part)
+			item.set_metadata(0, current_path)
+			# Restore expanded state
+			item.collapsed = current_path not in expanded_tags
 			item_map[current_path] = item
 
+
+func _collect_expanded(item: TreeItem, expanded_tags: Array[String]) -> void:
+	var child := item.get_first_child()
+	while child:
+		if not child.collapsed and child.get_metadata(0) != null:
+			expanded_tags.append(child.get_metadata(0))
+		_collect_expanded(child, expanded_tags)
+		child = child.get_next()
 
 # -------------------------------------------------------
 # Input Handling
@@ -169,6 +187,8 @@ func _submit_tag(tag: String) -> void:
 	_tag_input.clear()
 	_set_feedback("Added: %s" % tag, false)
 	_rebuild_tree(_search_input.text)
+	# Return focus to input so user can keep typing
+	_tag_input.grab_focus()
 
 
 func _on_search_changed(text: String) -> void:
@@ -182,13 +202,13 @@ func _on_item_mouse_selected(mouse_position: Vector2, mouse_button_index: int) -
 	var tag: String = selected.get_metadata(0)
 
 	if mouse_button_index == MOUSE_BUTTON_LEFT:
-		DisplayServer.clipboard_set('"%s"' % tag)
-		_set_feedback("Copied: %s" % tag, false)
+		DisplayServer.clipboard_set(tag)
+		_set_feedback("Copied: %s" % tag, false) 
 
 	elif mouse_button_index == MOUSE_BUTTON_RIGHT:
 		var popup := PopupMenu.new()
 		add_child(popup)
-		popup.add_item("Copy '%s'" % tag, 0)
+		popup.add_item("Copy String '%s'" % tag, 0)
 		popup.add_separator()
 		popup.add_item("Rename '%s' only" % tag, 1)
 		popup.add_item("Rename '%s' and children" % tag, 2)
@@ -209,8 +229,8 @@ func _on_context_menu_selected(id: int, tag: String) -> void:
 	_fetch_registry()
 	match id:
 		0:
-			DisplayServer.clipboard_set(tag)
-			_set_feedback("Copied: %s" % tag, false)
+			DisplayServer.clipboard_set('"%s"' % tag)
+			_set_feedback("Copied \"%s\" as string" % tag, false)
 		1:
 			_show_rename_dialog(tag, false)
 		2:
@@ -397,6 +417,11 @@ func _on_toolbar_toggle_pressed() -> void:
 		_toolbar_toggle.icon = GUI_VISIBILITY_VISIBLE
 
 
+func _on_toggle_search_pressed() -> void:
+	search_container.visible = not search_container.visible
+	toggle_search_texture.texture = GUI_SEARCH_VISIBLE if search_container.visible else GUI_SEARCH_HIDDEN
+
+
 
 # -------------------------------------------------------
 # Search
@@ -405,16 +430,25 @@ func _on_toolbar_toggle_pressed() -> void:
 func _find_tag_in_project(tag: String) -> void:
 	for child in _reference_list.get_children():
 		child.queue_free()
-	tag_title.text = tag
+
 	var results := _scan_for_tag(tag)
+
+	# Always show the panel and update the title
+	search_container.visible = true
+	toggle_search_texture.texture = GUI_SEARCH_VISIBLE
+
 	if results.is_empty():
+		tag_title.text = "'%s'\nNo references found." % tag
 		_set_feedback("No references found for '%s'." % tag, false)
 		return
+
+	tag_title.text = "'%s' — %d reference(s)" % [tag, results.size()]
+
 	for result in results:
 		var path: String = result.path
 		var line: int = result.line
 		var btn := Button.new()
-		btn.text = "%s  :%d" % [path.get_file(), line] if line > 0 else path.get_file()
+		btn.text = "%s :%d" % [path.get_file(), line] if line > 0 else path.get_file()
 		btn.tooltip_text = path
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.pressed.connect(func() -> void:
@@ -426,6 +460,7 @@ func _find_tag_in_project(tag: String) -> void:
 				EditorInterface.open_scene_from_path(path)
 		)
 		_reference_list.add_child(btn)
+
 	_set_feedback("Found %d reference(s) for '%s'." % [results.size(), tag], false)
 
 
